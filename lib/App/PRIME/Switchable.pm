@@ -258,7 +258,7 @@ Implements the grep subcommand. It acts on C<@ARGV>.
 
 my $GREP_HELP = <<EOF;
 Usage:
-  switchable.pl grep [options] command_strings [...]
+  switchable grep [options] command_strings [...]
 
   Options:
     --regex, -r REGEX  Also match against this regex
@@ -316,7 +316,7 @@ Implements the remove subcommand. It acts on C<@ARGV>
 
 my $ADD_HELP = <<EOF;
 Usage:
-  switchable.pl add [options] executable_names [...]
+  switchable add [options] executable_names [...]
 
   Options:
     --help, -h         Print this help message
@@ -346,7 +346,7 @@ sub add_subcommand {
 
 my $REMOVE_HELP = <<EOF;
 Usage:
-  switchable.pl remove [options] executable_names [...]
+  switchable remove [options] executable_names [...]
 
   Options:
     --help, -h         Print this help message
@@ -374,7 +374,7 @@ Implements the file subcommand. It acts on C<@ARGV>
 
 my $FILE_HELP = <<EOF;
 Usage:
-  switchable.pl file [options] ressource
+  switchable file [options] ressource
 
 Prints nothing on error unless verbose is set.
 
@@ -417,7 +417,7 @@ Implements the list subcommand. It acts on C<@ARGV>
 
 my $LIST_HELP = <<EOF;
 Usage:
-  switchable.pl list [options]
+  switchable list [options]
 
   Options:
     --help, -h         Print this help message
@@ -459,7 +459,7 @@ it acts on C<@ARGV> and contains the main logic.
 
 my $HELP = <<EOF;
 Usage:
-  switchable.pl [--help] <subcommand> <arguments>
+  switchable [--help] <subcommand> <arguments>
   
   Subcommands:
     grep          Match a command against the configured regexes

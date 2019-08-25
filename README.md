@@ -16,15 +16,15 @@ With it, you won't need to type `DRI_PRIME=1 steam` again.
 
 * Install `bash-preexec` to `~/.bash-preexec.sh` (the default)
 * Add the executable to your PATH
-* Add `source $(switchable.pl file bash)` to your .bashrc
+* Add `source $(switchable file bash)` to your .bashrc
 
 ## Configuration
 
-Add and remove aliases by calling `switchable.pl add <command>` and
-`switchable.pl remove <command>` respectively.
+Add and remove aliases by calling `switchable add <command>` and
+`switchable remove <command>` respectively.
 
-To set the regexes that are matched against by `switchable.pl grep`, edit the
-file path as returned by `switchable.pl file regex`. One regex per line,
+To set the regexes that are matched against by `switchable grep`, edit the
+file path as returned by `switchable file regex`. One regex per line,
 in Perl without the slashes (eg. `foo` instead of `/foo/`). Comments are lines
 that start with a `#` hash character.
 
