@@ -14,7 +14,7 @@ sub install_dot {
 
 	qx{mkdir -p $target};
 	qx{cp -r ./lib $target};
-	qx{cp ./switchable.bash ./switchable.pl $target};
+	qx{cp ./switchable.bash ./switchable $target};
 }
 
 my $xdg_config = $ENV{XDG_CONFIG_HOME} // "$HOME/.config";
@@ -32,7 +32,7 @@ sub install_xdg {
 
 	qx{cp -r ./lib $xdg_data};
 	qx{cp ./switchable.bash $xdg_data};
-	qx{cp ./switchable.pl $xdg_bin};
+	qx{cp ./switchable $xdg_bin};
 }
 
 my $hier;
