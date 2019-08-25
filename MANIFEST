@@ -1,0 +1,9 @@
+Makefile.PL
+MANIFEST
+
+lib/App/PRIME/Switchable.pm
+t/commands.t
+
+switchable.pl
+switchable.bash
+install.pl
