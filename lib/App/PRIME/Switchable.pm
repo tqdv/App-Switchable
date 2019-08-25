@@ -374,11 +374,11 @@ Implements the file subcommand. It acts on C<@ARGV>
 
 my $FILE_HELP = <<EOF;
 Usage:
-  switchable file [options] ressource
+  switchable file [options] resource
 
 Prints nothing on error unless verbose is set.
 
-  Ressources:
+  Resources:
     alias, aliases     Returns the file containing the aliases
     regex, regexes     Returns the file containing the regexes
     bash, bashrc       Returns the file sourced by .bashrc
@@ -398,14 +398,14 @@ sub file_subcommand {
 
 	if ($flag_help) { print $FILE_HELP; exit; }
 
-	if (!@ARGV) { say STDERR "No ressource specified, see --help"; exit 1; }
+	if (!@ARGV) { say STDERR "No resource specified, see --help"; exit 1; }
 
-	my $ressource = shift @ARGV;
-	for ($ressource) {
+	my $resource = shift @ARGV;
+	for ($resource) {
 		if    (/^alias/) { say $ALIASES_FILE }
 		elsif (/^regex/) { say $REGEXES_FILE }
 		elsif (/^bash/)  { say $BASH_FILE }
-		else { say STDERR "Invalid ressource, see --help"; exit 1; }
+		else { say STDERR "Invalid resource, see --help"; exit 1; }
 	}
 }
 
