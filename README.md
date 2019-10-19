@@ -4,6 +4,14 @@
 
 With it, you won't need to type `DRI_PRIME=1 steam` again.
 
+## Usage
+
+```
+switchable add steam
+# Reload shell
+steam
+```
+
 ## Prerequisites
 
 * bash as the default shell
@@ -11,6 +19,8 @@ With it, you won't need to type `DRI_PRIME=1 steam` again.
   * List::Gather
   * Path::Tiny
   * File::Which
+
+FIXME
 
 ## Installation
 
@@ -27,6 +37,22 @@ To set the regexes that are matched against by `switchable grep`, edit the
 file path as returned by `switchable file regex`. One regex per line,
 in Perl without the slashes (eg. `foo` instead of `/foo/`). Comments are lines
 that start with a `#` hash character.
+
+## Testing
+
+Requirements:
+
+* [Test::More][Test::More] for Perl
+* [bats][bats] for Bash
+
+[Test::More]: https://metacpan.org/pod/Test::More
+[bats]: https://github.com/bats-core/bats-core
+
+```
+# In the project root
+prove -l
+bats -t t
+```
 
 ## Notes
 

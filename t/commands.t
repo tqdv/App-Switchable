@@ -2,10 +2,9 @@ use v5.20;
 use feature 'refaliasing';
 no warnings 'experimental::refaliasing';
 
-use lib './lib';
 use Test::More tests => 16;
 
-require_ok 'App::PRIME::Switchable';
+require_ok 'App::Switchable';
 
 my @commands = (
 	['exec',         'exec',  'simple'],
@@ -28,5 +27,5 @@ my @commands = (
 );
 
 foreach \my @v (@commands) {
-	is( App::PRIME::Switchable::get_command_name($v[0]),  $v[1], $v[2]);
+	is( App::Switchable::get_command_name($v[0]),  $v[1], $v[2]);
 }

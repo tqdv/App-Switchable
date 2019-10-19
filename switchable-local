@@ -1,0 +1,9 @@
+#!/usr/bin/perl
+
+use lib "lib";
+
+$ENV{SWITCHABLE_HIER} = "xdg";
+require App::Switchable;
+
+my $app = App::Switchable->new;
+$app->run;
