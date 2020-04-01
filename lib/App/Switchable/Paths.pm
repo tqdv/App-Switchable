@@ -28,7 +28,7 @@ App::Switchable::Paths
 =head1 DESCRIPTION
 
 This module handles file paths. File creation and related things are
-handled in L<App::Swithchable::File>.
+handled in L<App::Switchable::File>.
 
 =cut
 
@@ -61,12 +61,19 @@ sub file_hierarchy {
 		}
 	}
 
+	# this file is in .switchable
 	if (path($self->home."/.switchable")->subsumes(__FILE__)) {
 		return 'dot';
 	}
 
+	# this file is in .local
 	my $dir = $ENV{XDG_LIB_HOME} // $self->home."/.local";
 	if (path($dir)->subsumes(__FILE__)) {
+		return 'xdg';
+	}
+
+	# xdg config dir exists
+	if (path($xdg->config_home)->exists) {
 		return 'xdg';
 	}
 
@@ -109,7 +116,7 @@ sub new_paths {
 
 =head2 $paths->home
 
-Returns the home directorie or croak.
+Returns the home directory or croak.
 
 =cut
 

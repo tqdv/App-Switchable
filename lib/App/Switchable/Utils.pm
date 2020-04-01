@@ -6,7 +6,8 @@ our @EXPORT_OK = qw< parse_xrandr >;
 
 =head2 parse_xrandr
 
-Assumes english output of xrandr.
+Assumes English output of C<xrandr --listproviders>.
+Returns an array of flattened (DRI_PRIME value, GPU description) pairs.
 
 =cut
 
@@ -14,13 +15,15 @@ sub parse_xrandr {
 	my $s = qx{xrandr --listproviders};
 	my @lines = split "\n", $s;
 
-	my %h;
+	# We use an array instead of a hash to preserver order
+	my @data;
 	for (@lines) {
 		if (/Provider \  (\d+) : .*? name: \  (.*?) (?: ; | $)/xx) {
-			$h{$1} = $2;
+			push @data, $1, $2;;
 		}
 	}
 
-	return %h;
+	return @data;
 }
+
 

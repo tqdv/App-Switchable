@@ -30,8 +30,8 @@ Which means that this is only possible if we are able to make the command a no-o
 
 ## Summary
 
-If we don't have bash_preexec, we'll call the supplied command with env\
-If we do have bash_preexec, we'll modify env with the preexec hook.\
+If we don't have bash\_preexec, we'll call the supplied command with env\
+If we do have bash\_preexec, we'll modify env with the preexec hook.\
 And if we're the ones being called, we'll also execute the command in that hook.
 
 To tell that preexec exists and has already ran the command, the hooks must set and then unset the `SWITCHABLE_RAN` variable.

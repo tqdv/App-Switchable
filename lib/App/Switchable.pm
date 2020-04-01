@@ -3,11 +3,11 @@ package App::Switchable;
 use v5.020;
 use Getopt::Long;
 
-require App::Switchable::Commands;  # Mixin
 our @ISA = qw< App::Switchable::Commands >;
 
-our $VERSION = '0.0.2';
+use App::Switchable::Exits; # %EXIT
 
+our $VERSION = '0.0.2';
 
 =encoding utf8
 
@@ -18,6 +18,9 @@ App::Switchable
 =head1 VERSION
 
 v0.0.2
+
+=cut
+
 
 =head1 CONSTRUCTOR
 
@@ -54,12 +57,14 @@ Returns the L<App::Switchable::File> object. (lazy)
 
 Returns the L<App::Switchable::Paths> object. (lazy)
 
-=head2 $app->command_already_ran
+=cut
 
-Returns whether the bash_preexec hook has already ran the command supplied to
-C<switchable run>
+#=head2 $app->command_already_ran
+#
+#Returns whether the bash_preexec hook has already ran the command supplied to
+#C<switchable run>
 
-=cut 
+#=cut 
 
 sub config {
 	my $self = shift;
@@ -85,7 +90,8 @@ sub paths {
 	my $self = shift;
 
 	state $req = 0;
-	if (!$req++) {
+	if (!$req) {
+		$req = 1;
 		require App::Switchable::Paths;
 		App::Switchable::Paths->import(qw< new_paths >);
 	}
@@ -95,13 +101,13 @@ sub paths {
 	return $self->{paths};
 }
 
-sub command_already_ran {
-	my $self = shift;
-
-	$self->{command_already_ran} //= $ENV{SWITCHABLE_RAN};
-
-	return $self->{preexec};
-}
+#sub command_already_ran {
+#	my $self = shift;
+#
+#	$self->{command_already_ran} //= $ENV{SWITCHABLE_RAN};
+#
+#	return $self->{preexec};
+#}
 
 
 =head2 $app->run
@@ -112,10 +118,13 @@ it acts on C<@ARGV> and contains the main logic.
 
 my $HELP = <<EOF;
 Usage:
-  switchable [--help] <subcommand> <arguments>
-  
+  switchable <subcommand> <arguments>
+  switchable <subcommand> --help
+  switchable --help | --version
+
   Subcommands:
-    run   Enable the GPU for the supplied command
+    run     Enable the GPU for the supplied command
+    xrandr  List DRI_PRIME value for each GPU
 EOF
 
 sub run {
@@ -130,23 +139,31 @@ sub run {
 	);
 	Getopt::Long::Configure("default"); # Reset to default for subcommands
 
-	if ($help) { print $HELP; exit 0 }
-	if ($version) { print $0." v".$VERSION; exit 0 }
+	if ($help)    { print $HELP; exit $EXIT{OK} }
+	if ($version) { print $0." v".$VERSION; exit $EXIT{OK} }
 
 	# Subcommand handling
-	if (!@ARGV) { say "No subcommand given, see --help"; exit 2 }
+	if (!@ARGV) { say "No subcommand given, see --help"; exit $EXIT{MISSING_ARG} }
 	my $subcommand = shift @ARGV;
 
-	# Try ::Commands
-	if (my $sub = $self->get_command($subcommand)) {
-		$self->$sub();
+	if (0) {
+		# Try <fast startup subcommands>
+		# TODO
 
 	} else {
-		say "Invalid subcommand given: \"$subcommand\", see --help";
-		exit 1;
+		require App::Switchable::Commands;  # Lazily loaded mixin
+
+		# Try ::Commands
+		if (my $sub = $self->get_command($subcommand)) {
+			$self->$sub();
+
+		} else {
+			say "Invalid subcommand given: \"$subcommand\", see --help";
+			exit $EXIT{BAD_ARG};
+		}
 	}
 
-	exit 0;
+	exit $EXIT{OK};
 }
 
 

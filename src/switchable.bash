@@ -8,13 +8,13 @@ printargs() { printf "「%s」 " "$@"; echo; }
 preexec() {
 	echo "preexec"
 	printargs $1
-	eval $( switchable preexec "$1" )
+	eval "$( switchable preexec -- "$1" )"
 	export SWITCHABLE_RET=$?
 }
 
 precmd() {
 	echo "precmd"
-	eval $( switchable precmd "$1" )
+	eval "$( switchable precmd -- "$1" )"
 	unset SWITCHABLE_RET
 }
 

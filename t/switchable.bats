@@ -1,6 +1,6 @@
-@test "\"switchable\" status code is 2" {
+@test "\"switchable\" status code is 0" {
 	run ./switchable
-	[ "$status" -eq 2 ]
+	[ "$status" -eq 0 ]
 }
 
 @test "\"switchable\" points to '--help'" {
@@ -16,6 +16,31 @@
 @test "\"switchable --help\" displays help" {
 	run ./switchable --help
 	[ -n "$( echo "$output" | grep "Usage" )" ]
+}
+
+@test "\"switchable --help\" status code is 0" {
+	run ./switchable --help
+	[ "$status" -eq 0 ]
+}
+
+@test "\"switchable --help\" mentions --help" {
+	run ./switchable --help
+	[ -n "$( echo "$output" | grep -- "--help" )" ]
+}
+
+@test "\"switchable --help\" mentions --version" {
+	run ./switchable --help
+	[ -n "$( echo "$output" | grep -- "--version" )" ]
+}
+
+@test "\"switchable --help\" mentions run" {
+	run ./switchable --help
+	[ -n "$( echo "$output" | grep "run" )" ]
+}
+
+@test "\"switchable --help\" mentions xrandr" {
+	run ./switchable --help
+	[ -n "$( echo "$output" | grep "xrandr" )" ]
 }
 
 @test "\"switchable --version\" status code is 0" {
