@@ -1,29 +1,36 @@
 # Load bash_preexec
+
 BASH_PREEXEC="$HOME/.bash-preexec.sh"
-[ -f $BASH_PREEXEC ] || return
+if ! [ -f "$BASH_PREEXEC" ]
+then
+	echo "bash_preexec couldn't be found"
+	return
+fi
+
 source $BASH_PREEXEC
 
-printargs() { printf "「%s」 " "$@"; echo; }
+# Debug
+printargs() {
+	for arg in "$@"; do
+		printf "「%s」 " "$arg"
+	done
+	printf "\n"
+}
 
 preexec() {
-	echo "preexec"
-	printargs $1
-	eval "$( switchable preexec -- "$1" )"
-	export SWITCHABLE_RET=$?
+	eval "$( switchable preexec "$1" )"
 }
 
 precmd() {
-	echo "precmd"
-	eval "$( switchable precmd -- "$1" )"
-	unset SWITCHABLE_RET
+	eval "$( switchable precmd "$1" )"
 }
 
 
 # Load the aliases if they exist
 #SWITCHABLE_ALIASES=$( switchable file aliases )
-if [ -f $SWITCHABLE_ALIASES ]
-then source $SWITCHABLE_ALIASES
-fi
+# if [ -f $SWITCHABLE_ALIASES ]
+# then source $SWITCHABLE_ALIASES
+# fi
 
 
 export SWITCHABLE_EXISTS=1

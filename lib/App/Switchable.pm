@@ -3,11 +3,20 @@ package App::Switchable;
 use v5.020;
 use Getopt::Long;
 
-our @ISA = qw< App::Switchable::Commands >;
-
 use App::Switchable::Exits; # %EXIT
+require App::Switchable::Commands;
+require App::Switchable::Config;
+require App::Switchable::Paths;
+require App::Switchable::Preexec;
 
-our $VERSION = '0.0.2';
+our @ISA = qw<
+	App::Switchable::Commands
+	App::Switchable::Config
+	App::Switchable::Paths
+	App::Switchable::Preexec
+>;
+
+our $VERSION = v0.0.3;
 
 =encoding utf8
 
@@ -17,7 +26,13 @@ App::Switchable
 
 =head1 VERSION
 
-v0.0.2
+v0.0.3
+
+=head1 MIXINS
+
+L<App::Switchable::Commands>
+L<App::Switchable::Config>
+L<App::Switchable::Paths>
 
 =cut
 
@@ -35,42 +50,23 @@ L<App::Switchable::Paths>.
 
 sub new {
 	my $class = shift;
-	my $config = { @_ };
+	my %config = @_;
 
-	bless {
-		config => $config,
+	my $obj = bless {
+		init => \%config
 	}, $class;
+	
+	return $obj;
 }
 
 
 =head1 METHODS
 
-=head2 $app->config
-
-Returns the configuration hashref.
-
 =head2 $app->files
 
 Returns the L<App::Switchable::File> object. (lazy)
 
-=head2 $app->paths
-
-Returns the L<App::Switchable::Paths> object. (lazy)
-
 =cut
-
-#=head2 $app->command_already_ran
-#
-#Returns whether the bash_preexec hook has already ran the command supplied to
-#C<switchable run>
-
-#=cut 
-
-sub config {
-	my $self = shift;
-
-	return $self->{config};
-}
 
 sub files {
 	my $self = shift;
@@ -85,29 +81,6 @@ sub files {
 
 	return $self->{files};
 }
-
-sub paths {
-	my $self = shift;
-
-	state $req = 0;
-	if (!$req) {
-		$req = 1;
-		require App::Switchable::Paths;
-		App::Switchable::Paths->import(qw< new_paths >);
-	}
-
-	$self->{paths} //= new_paths $self->config;
-
-	return $self->{paths};
-}
-
-#sub command_already_ran {
-#	my $self = shift;
-#
-#	$self->{command_already_ran} //= $ENV{SWITCHABLE_RAN};
-#
-#	return $self->{preexec};
-#}
 
 
 =head2 $app->run
@@ -146,21 +119,13 @@ sub run {
 	if (!@ARGV) { say "No subcommand given, see --help"; exit $EXIT{MISSING_ARG} }
 	my $subcommand = shift @ARGV;
 
-	if (0) {
-		# Try <fast startup subcommands>
-		# TODO
+	# Try ::Commands
+	if (my $sub = $self->get_command($subcommand)) {
+		$self->$sub();
 
 	} else {
-		require App::Switchable::Commands;  # Lazily loaded mixin
-
-		# Try ::Commands
-		if (my $sub = $self->get_command($subcommand)) {
-			$self->$sub();
-
-		} else {
-			say "Invalid subcommand given: \"$subcommand\", see --help";
-			exit $EXIT{BAD_ARG};
-		}
+		say "Invalid subcommand given: \"$subcommand\", see --help";
+		exit $EXIT{BAD_ARG};
 	}
 
 	exit $EXIT{OK};
@@ -189,6 +154,6 @@ __END__
 
 =over 4
 
-=item SWITCHABLE_RAN - if the command supplied has already been ran
+=item SWITCHABLE_RAN - whether switchable has been run in a preexec hook.
 
 =back

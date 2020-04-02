@@ -17,11 +17,15 @@ It calls:
 This is useful when we need to modify the environment variables before calling the user command:
 
     $ echo $DRI_PRIME
-    bash_preexec: eval $( switchable preexec 'echo $DRI_PRIME' )  # modifies DRI_PRIME
+    bash_preexec: eval $( switchable preexec <command string> )  # modifies DRI_PRIME
     shell:        echo $DRI_PRIME  #> 1
-    bach_precmd:  eval $( switchable precmd 'echo $DRIME_PRIME' )  # restores DRI_PRIME to its previous value
+    bash_precmd:  eval $( switchable precmd <command string> )  # restores DRI_PRIME to its previous value
 
 ## Aliases
+
+```bash
+switchable run ll
+```
 
 In addition to either intercepting it or not, we sometimes need to execute the command in the shell. This is the case for aliases.
 

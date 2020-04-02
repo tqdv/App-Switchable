@@ -92,7 +92,7 @@ sub run_subcommand {
 		"expand",
 	);
 
-	$opts{driver} //= 1;
+	$opts{driver} //= $self->config->{driver} // 1;
 
 	if ($opts{help}) { print $RUN_HELP; return }
 
@@ -122,8 +122,8 @@ sub run_subcommand {
 
 =head2 $app->preexec_subcommand
 
-Receives as its first argument, the command to execute. It prints the commands
-to prepare for execution or even executes the command directly.
+Receives as its first argument, the command to execute. It prints out code
+that modifies the appropriate environment variables.
 
 TODO allow different value of DRI_PRIME
 
@@ -137,81 +137,46 @@ Cleans up the setup done in preexec.
 # modification of the bash commands by Switchable if needed
 # Or simply put, I'm lazy and don't want to deal with loading the bash script
 
+# NB the output of this command is executed in the shell only when there's a command
+# Make sure eveything is quoted properly !
 sub preexec_subcommand {
 	my $self = shift;
 
-	my %opts = ();
-	# Avoid consuming the switches belonging to the command to run
-	Getopt::Long::Configure(qw<require_order passthrough>);
-	GetOptions(\%opts,
-		"split",
-	);
+	say "SWITCHABLE_RAN=1";
 
-	if ($opts{split}) {
-		...
+	my $command = shift @ARGV;
+	# No warnings as this executed at every command entered in the shell
+	unless (defined $command) {	exit 2 }
+	
+	# Debug
+	$command =~ s/'/'\\''/g;
 
-	} else {
-
-		my $command = shift @ARGV;
-		print "echo .$command.";
-		# No warnings as this executed at every command entered in the shell
-		unless (defined $command) {	exit 2 }
-
-		my $enable_dri;
-		my $run_command; # The command to execute
-
-		if ( # the command is `switchable run *`
-			$command =~ m{
-				\s*
-				(?: \Q$0\E | switchable )  # The command name or switchable
-				\s+
-				run      # followed by the run subcommand
-				\s+
-				(.*)
-			}x
-		) {
-			$run_command = $1;
-			$enable_dri = 1;
-		}
-		elsif (0) {# $command in context matched a filter) { TODO
-			$enable_dri = 1;
-		}
-
-		# FIXME variable interpolation is unsafe
-
-		if ($enable_dri) {
-			print
-				qq{if [ -n \${DRI_PRIME+x} ];},
-				qq{then};
-				qq{	export SWITCHABLE_DP_BAK=\$DRI_PRIME;},
-				qq{fi;},
-				qq{export DRI_PRIME=1;},
-			;
-		}
-
-		if ($run_command) {
-			print
-				qq{echo "Executing $run_command";},
-				qq{$run_command;},
-				qq{SWITCHABLE_RAN=1;},
-			;
-		}
+	if ($self->match_filter($command)) {# TODO detect pipes
+		my $driver = $self->config->{driver} // 1;
+	
+		say qq{if [ -n "\${DRI_PRIME+x}" ]};
+		say qq{then};
+		say qq{	export SWITCHABLE_DP_BAK="\$DRI_PRIME"};
+		say qq{fi};
+		say qq{export DRI_PRIME=$driver};
 	}
 
 	# TODO look into DEBUG traps for DRI_PRIME to handle "export DRI_PRIME=1"
 }
 
+# NB the output of this command is executed in the shell
+# NB precmd is executed even if there was nothing entered in the shell
 sub precmd_subcommand {
 	my $self = shift;
 
 	print <<EOF;
-unset SWITCHABLE_RAN;
-unset DRI_PRIME;
+unset SWITCHABLE_RAN
+unset DRI_PRIME
 
-if [ -n \${SWITCHABLE_DP_BAK+x} ];
+if [ -n \${SWITCHABLE_DP_BAK+x} ]
 then
-	DRI_PRIME=\$SWITCHABLE_DP_BAK;
-	unset SWITCHABLE_DP_BAK;
+	DRI_PRIME="\$SWITCHABLE_DP_BAK"
+	unset SWITCHABLE_DP_BAK
 fi
 EOF
 }
@@ -226,8 +191,6 @@ Displays DRI_PRIME values for each GPU by parsing the output of C<xrandr --listp
 sub xrandr_subcommand {
 	my $self = shift;
 
-	# Avoid consuming the switches belonging to the command to run
-	Getopt::Long::Configure(qw<require_order passthrough>);
 	GetOptions(\%opts,
 		"help",
 	);
@@ -252,13 +215,3 @@ sub xrandr_subcommand {
 
 
 1;
-
-__END__
-
-=head1 ENVIRONMENT VARIABLES
-
-=over 4
-
-=item SWITCHABLE_RET – Return code of the command executed in the preexec hook
-
-=back
