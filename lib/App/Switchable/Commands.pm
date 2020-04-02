@@ -3,6 +3,8 @@ package App::Switchable::Commands;
 use feature qw<say state>;
 use Getopt::Long;
 
+use List::MoreUtils qw< uniq >;
+
 use App::Switchable::Exits; # %EXIT
 use App::Switchable::Utils qw< parse_xrandr >;
 
@@ -46,11 +48,12 @@ otherwise.
 =cut
 
 # List of implemented commands
-my %commands = (
+our %commands = (
 	run     => \&run_subcommand,
 	preexec => \&preexec_subcommand,
 	precmd  => \&precmd_subcommand,
 	xrandr  => \&xrandr_subcommand,
+	'list-matches' => \&list_matches_subcommand,
 );
 
 sub get_command {
@@ -182,6 +185,41 @@ EOF
 }
 
 
+=head2 $app->list_matches_subcommand
+
+List the regexes that we match against commands.
+
+=cut
+
+sub list_matches_subcommand {
+	my $self = shift;
+
+	my $help = <<END;
+Usage: switchable list-matches
+List the configured command filters.
+END
+
+	GetOptions(\%opts,
+		"help",
+	);
+	
+	if ($opts{help}) {
+		print $help;
+		exit $EXIT{OK};
+	}
+	
+	unless($self->config_file->exists) { say "No configuration file found"; exit $EXIT{OK}; }
+	
+	my @regexes = $self->config->{match}->@*;
+	
+	unless (@regexes) { say "No matches defined in the 'match' array of ".$self->config_file."."; exit $EXIT{OK}; }
+
+	say "Configured in ".$self->config_file.":";
+	foreach my $match (@regexes) {
+		say "$match";
+	}
+}
+
 =head2 $app->xrandr_subcommand
 
 Displays DRI_PRIME values for each GPU by parsing the output of C<xrandr --listproviders>
@@ -199,7 +237,7 @@ sub xrandr_subcommand {
 		say "Usage: switchable xrandr";
 		say "";
 		say "Prints the DRI_PRIME values for each GPU based on the output of `xrandr --listproviders`.";
-		return $EXIT{OK};
+		exit $EXIT{OK};
 	}
 
 	# Header

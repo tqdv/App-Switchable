@@ -96,8 +96,9 @@ Usage:
   switchable --help | --version
 
   Subcommands:
-    run     Enable the GPU for the supplied command
-    xrandr  List DRI_PRIME value for each GPU
+    run           Enable the GPU for the supplied command
+    list-matches  List the regexes used to match commands
+    xrandr        List DRI_PRIME values for each GPU
 EOF
 
 sub run {
