@@ -87,6 +87,11 @@ Returns a L<Path::Tiny> object.
 Finds an existing aliases file, or the path where it should be created.
 Returns a L<Path::Tiny> object.
 
+=head2 _find_unalias_file
+
+Finds an existing unalias file, or the path where it should be created.
+Returns a L<Path::Tiny> object.
+
 =cut
 
 sub _find_config_file {
@@ -119,6 +124,20 @@ sub _find_aliases_file {
 	return $path;
 }
 
+sub _find_unalias_file {
+	my $filename = 'unalias.bash';
+
+	my $loc = _prefered_location;
+	if ($loc eq 'xdg') {
+		$path = path($xdg->data_home)->child($filename);
+	} elsif ($loc eq 'dot') {
+		$path = path(home)->child('.switchable', $filename);
+	}
+
+	defined $path or croak "Could not decide where to put the alias file";
+	return $path;
+}
+
 
 =head1 METHODS
 
@@ -129,6 +148,10 @@ Returns the configuration file path.
 =head2 $app->aliases_file
 
 Returns the aliases file path. Does not create it.
+
+=head2 $app->unalias_file
+
+Returns the unalias file path. Does not create it.
 
 =cut
 
@@ -148,6 +171,15 @@ sub aliases_file {
 	$aliases_file //= _find_aliases_file;
 	
 	return $aliases_file;
+}
+
+sub unalias_file {
+	my $self = shift;
+	
+	state $unalias_file;
+	$unalias_file //= _find_unalias_file;
+	
+	return $unalias_file;
 }
 
 1;

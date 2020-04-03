@@ -8,12 +8,14 @@ require App::Switchable::Commands;
 require App::Switchable::Config;
 require App::Switchable::Paths;
 require App::Switchable::Preexec;
+require App::Switchable::File;
 
 our @ISA = qw<
 	App::Switchable::Commands
 	App::Switchable::Config
 	App::Switchable::Paths
 	App::Switchable::Preexec
+	App::Switchable::File
 >;
 
 our $VERSION = v0.0.3;
@@ -142,13 +144,15 @@ __END__
 
 =over 4
 
+=item 3 — Bad IO
+
 =item 2 – Missing argument
 
 =item 1 – Bad argument
 
 =item 0 – Nothing to report
 
-=item -1 – TBD
+=item -1 – Failure
 
 =back
 
