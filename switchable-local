@@ -9,14 +9,15 @@ or C<~/.switchable/config.json>.
 Format is as follows:
 
  {
-     driver: 1  // default DRI_PRIME value
+     driver: 1,             // default DRI_PRIME value
+     match: [ "steam" ],    // used by the preexec hook
+     alias: [ "glxgears" ], // aliases
  }
 
 =cut
 
 use lib "lib";
 
-$ENV{SWITCHABLE_HIER} = "xdg";
 require App::Switchable;
 
 my $app = App::Switchable->new;
