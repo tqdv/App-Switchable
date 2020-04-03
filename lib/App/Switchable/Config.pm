@@ -53,6 +53,10 @@ Reads the configuration file as JSON, and stores it. It carps on read error.
 
 Reads the configuration if it hasn't been read yet in the lifetime of the object.
 
+=head2 $app->config_loaded
+
+Whether the config has been successfully loaded or not.
+
 =cut
 
 sub load_config {
@@ -69,11 +73,9 @@ sub load_config {
 		return;
 	};
 	
-	# Remove //-style comments
-	$string =~ s[//.*$][]mg;
-	
 	eval {
-		$self{config} = decode_json $string;
+		$self{config} = JSON::PP->new->relaxed->decode($string);
+		$self{config_loaded} = 1;
 		1;
 	} or do {
 		say STDERR "Could not parse configuration file as valid JSON: ".$self->config_file.".";
@@ -89,6 +91,12 @@ sub load_config_once {
 		
 		$self->load_config;
 	}
+}
+
+sub config_loaded {
+	my $self = shift;
+	
+	return $self{config_loaded};
 }
 
 1;

@@ -32,6 +32,7 @@ our %EXIT = (
 	OK => 0,
 	BAD_ARG => 1,
 	MISSING_ARG => 2,
+	BAD_IO => 3,
 );
 
 
