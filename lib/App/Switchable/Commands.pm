@@ -244,6 +244,11 @@ Reloads the aliases by using the preexec hooks if available.
 sub reload_aliases_subcommand {
 	my $self = shift;
 	
+	if ($self->hook_ran) {
+		# Do nothing as it has already been done.
+		return;
+	}
+	
 	$self->load_config;
 	unless ($self->config_loaded) {
 		say "No configuration found, aborting.";
@@ -263,7 +268,8 @@ sub reload_aliases_subcommand {
 	$self->aliases_file->touchpath or croak "Could not create aliases file at ".$self->aliases_file;
 	$self->aliases_file->spew($string);
 
-	...
+	say "New aliases written to ".$self->aliases_file;
+	say "New shells will load that file."
 }
 
 =head2 $app->xrandr_subcommand

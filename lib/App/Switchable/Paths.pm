@@ -38,6 +38,16 @@ L<File::XDG::Systemd> object for the app.
 
 our $xdg = xdg( name => 'switchable');
 
+=head2 %names
+
+A hash of the filenames.
+
+=cut
+
+our %names = (
+	config => 'config.json',
+	alias => 'aliases.bash',
+);
 
 =head1 FUNCTIONS
 
@@ -50,6 +60,21 @@ Returns the C<HOME> environment variable. Croaks if unset.
 sub home {
 	state $home = $ENV{HOME} // croak "HOME environment variable is unset";
 	return $home;
+}
+
+=head2 _prefered_location
+
+C<_prefered_location> returns either 'xdg' or 'dot' based on existing files. Defaults to 'xdg'.
+It will prefer the location where the configuration file is stored.
+
+=cut
+
+sub _prefered_location {
+	my $x = path($xdg->config_home)->child($names{config})->exists;
+	my $d = path($xdg->data_home)->child($names{alias})->exists;
+	
+	if ($d && !$x) { return 'dot' }
+	return 'xdg';
 }
 
 =head2 _find_config_file
@@ -68,20 +93,14 @@ sub _find_config_file {
 	my $filename = 'config.json';
 	my $path;
 	
-	# File already exists
+	my $loc = _prefered_location;
+	if ($loc eq 'xdg') {
+		$path = path($xdg->config_home)->child($filename);
+	} elsif ($loc eq 'dot') {
+		$path = path(home)->child('.switchable', $filename);
+	}
 	
-	$path = $xdg->lookup_config_file($filename);
-	return path($path) if defined $path;
-	
-	$path = path(home)->child('.switchable', $filename);
-	return $path if $path->exists;
-		
-	# Default location
-	
-	$path = path($xdg->config_home)->child($filename);
-	return $path if path($xdg->config_home)->exists;
-	
-	$path = path(home)->child('.switchable', $filename);
+	defined $path or croak "Could not decide where to put the config file";
 	return $path;
 }
 
@@ -89,20 +108,14 @@ sub _find_aliases_file {
 	my $filename = 'aliases.bash';
 	my $path;
 	
-	# File already exists
+	my $loc = _prefered_location;
+	if ($loc eq 'xdg') {
+		$path = path($xdg->data_home)->child($filename);
+	} elsif ($loc eq 'dot') {
+		$path = path(home)->child('.switchable', $filename);
+	}
 	
-	$path = $xdg->lookup_data_file($filename);
-	return path($path) if defined $path;
-	
-	$path = path(home)->child('.switchable', $filename);
-	return $path if $path->exists;
-		
-	# Default location
-	
-	$path = path($xdg->data_home)->child($filename);
-	return $path if path($xdg->config_home)->exists;
-	
-	$path = path(home)->child('.switchable', $filename);
+	defined $path or croak "Could not decide where to put the alias file";
 	return $path;
 }
 

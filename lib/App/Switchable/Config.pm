@@ -99,4 +99,16 @@ sub config_loaded {
 	return $self{config_loaded};
 }
 
+=head2 hook_ran
+
+Whether the preexec hook has already been run.
+
+=cut
+
+sub hook_ran {
+	my $self = shift;
+	
+	return defined $ENV{SWITCHABLE_RAN};
+}
+
 1;
