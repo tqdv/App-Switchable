@@ -40,9 +40,9 @@ And it will automatically use your discrete GPU.
 
 We first look at `~/.config/switchable/config.json`, and if that doesn't exist, we try `~/.switchable/config.json`.
 
-The file is a JSON object with the following format:
+The file is a JSON object with the following format. Note that it does allow comments. See [JSON::PP docs](https://perldoc.perl.org/JSON/PP.html#relaxed) for more details about the allowed JSON syntax.
 
-```json
+```json5
 {
     "driver": 1,   // Default value for DRI_PRIME
     "preexec": "/path/to/bash/preexec", // Path to bash-preexec
