@@ -2,6 +2,7 @@ package App::Switchable;
 
 use v5.020;
 use Getopt::Long;
+use version;
 
 use App::Switchable::Exits; # %EXIT
 require App::Switchable::Commands;
@@ -111,7 +112,7 @@ sub run {
 	Getopt::Long::Configure("default"); # Reset to default for subcommands
 
 	if ($help)    { print $HELP; exit $EXIT{OK} }
-	if ($version) { print $0." v".$VERSION; exit $EXIT{OK} }
+	if ($version) { print "switchable ".version->parse($VERSION); exit $EXIT{OK} }
 
 	# Subcommand handling
 	if (!@ARGV) { say "No subcommand given, see --help"; exit $EXIT{MISSING_ARG} }

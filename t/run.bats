@@ -34,26 +34,17 @@
 	[ "$output" = "$expected" ]
 }
 
-@test "\"switchable run echo '\$DRI_PRIME'\" prints '\$DRI_PRIME'" {
-	run ./switchable run echo '$DRI_PRIME'
-	[ "$output" = "\$DRI_PRIME" ]
-}
-
-@test "\"switchable run --expand echo '\$DRI_PRIME'\" prints '1'" {
+@test "switchable run \"--expand\" option works" {
 	run ./switchable run --expand echo '$DRI_PRIME'
 	[ "$output" = "1" ]
 }
 
-@test "\"switchable run --driver 3 --expand echo '\$DRI_PRIME'\" prints '3'" {
+@test "switchable run \"--driver\" option works" {
 	run ./switchable run --driver 3 --expand echo '$DRI_PRIME'
 	[ "$output" = "3" ]
 }
 
-@test "\"switchable run -d 3 --expand echo '\$DRI_PRIME'\" prints '3'" {
+@test "switchable run \"-d\" option works" {
 	run ./switchable run -d 3 --expand echo '$DRI_PRIME'
 	[ "$output" = "3" ]
 }
-
-# With bash_preexec
-
-# TODO

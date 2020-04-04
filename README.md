@@ -71,6 +71,8 @@ Project documentation is in `docs/`, [start from the index](docs/index.md).
 
 ### Testing
 
+We mostly test either specific functions in Perl, or the general output of commands (not the behaviour). In short, it's a bit pointless.
+
 Requirements:
 
 * [Test::More][Test::More] for Perl
@@ -78,6 +80,8 @@ Requirements:
 
 [Test::More]: https://metacpan.org/pod/Test::More
 [bats]: https://github.com/bats-core/bats-core
+
+Run the following commands to start the tests.
 
 ```
 # In the project root

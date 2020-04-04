@@ -87,7 +87,7 @@ sub _reload_aliases_from {
 			say @_;
 		}
 	}
-	
+		
 	$self->load_config_once;
 	unless ($self->config_loaded) {
 		_say "No configuration found, aborting.";
@@ -117,9 +117,9 @@ sub _reload_aliases_from {
 	$self->write_aliases;
 	
 	if (@to_add) {
-		_say "New aliases written to '".$self->aliases_file.".";
+		_say "New aliases written to '".$self->aliases_file."'.";
 	} else {
-		_say "Aliases written to '".$self->aliases_file.".";
+		_say "Aliases written to '".$self->aliases_file."'.";
 	}
 }
 
@@ -249,9 +249,10 @@ sub preexec_subcommand {
 	
 	# Process `switchable reload-aliases`
 	if ($command =~ m{
-		^ \s* (?: \Q$0\E | switchable ) # The command name or switchable
+		^ \s* (?: (?: \w | [/.] )* )? switchable # switchable
 		\s+ reload-aliases  # followed by the `reload-aliases` subcommand
-	}x) {
+	}x && $command =~ /help/ # Do not process --help
+	) {
 		$self->_reload_aliases_from('preexec');
 		
 		my $alias = $self->aliases_file;
@@ -344,6 +345,19 @@ Reloads the aliases by using the preexec hooks if available.
 
 sub reload_aliases_subcommand {
 	my $self = shift;
+	
+	my $help = <<END;
+Usage: switchable reload-aliases
+Writes the configured aliases to the aliases file. This will also load them into your shell if you use a preexec hook.
+END
+
+	GetOptions(\%opts,
+		"help",
+	);
+	
+	if ($opts{help}) {
+		print $help; exit $EXIT{OK};
+	}
 	
 	if ($self->hook_ran) {
 		# Do nothing as it has already been done in the preexec hook

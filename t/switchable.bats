@@ -1,6 +1,6 @@
-@test "\"switchable\" status code is 0" {
+@test "\"switchable\" status code is 2 (missing argument)" {
 	run ./switchable
-	[ "$status" -eq 0 ]
+	[ "$status" -eq 2 ]
 }
 
 @test "\"switchable\" points to '--help'" {
@@ -36,6 +36,16 @@
 @test "\"switchable --help\" mentions run" {
 	run ./switchable --help
 	[ -n "$( echo "$output" | grep "run" )" ]
+}
+
+@test "\"switchable --help\" mentions reload-aliases" {
+	run ./switchable --help
+	[ -n "$( echo "$output" | grep "reload-aliases" )" ]
+}
+
+@test "\"switchable --help\" mentions show-config" {
+	run ./switchable --help
+	[ -n "$( echo "$output" | grep "show-config" )" ]
 }
 
 @test "\"switchable --help\" mentions xrandr" {
