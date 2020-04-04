@@ -78,7 +78,13 @@ sub load_config {
 		$self{config_loaded} = 1;
 		1;
 	} or do {
-		say STDERR "Could not parse configuration file as valid JSON: ".$self->config_file.".";
+		# Handle empty files
+		if ($string =~ /^\s*$/) {
+			$self{config_loaded} = 1;
+			say STDERR "Configuration file is empty";
+		} else {
+			say STDERR "Could not parse configuration file as valid JSON: ".$self->config_file.".";
+		}
 	}
 }
 

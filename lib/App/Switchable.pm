@@ -18,7 +18,7 @@ our @ISA = qw<
 	App::Switchable::File
 >;
 
-our $VERSION = v0.0.3;
+our $VERSION = v0.0.4;
 
 =encoding utf8
 
@@ -28,13 +28,7 @@ App::Switchable
 
 =head1 VERSION
 
-v0.0.3
-
-=head1 MIXINS
-
-L<App::Switchable::Commands>
-L<App::Switchable::Config>
-L<App::Switchable::Paths>
+v0.0.4
 
 =cut
 

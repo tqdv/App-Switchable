@@ -66,6 +66,63 @@ sub get_command {
 	return $commands{$name};
 }
 
+=head1 METHODS
+
+=head2 $app->_reload_aliases_from($from)
+
+Method called by C<< $app->reload_aliases_subcommand >> and C<< $app->preexec_subcommand >>.
+
+C<$from> is either 'preexec' or 'command', and it controls how we print things out to the console.
+
+=cut
+
+sub _reload_aliases_from {
+	my $self = shift;
+	my ($from) = @_;
+	
+	sub _say {
+		if ($from eq 'preexec') {
+			say qq(echo "@_")
+		} elsif ($from eq 'command') {
+			say @_;
+		}
+	}
+	
+	$self->load_config_once;
+	unless ($self->config_loaded) {
+		_say "No configuration found, aborting.";
+		exit $EXIT{BAD_IO};
+	}
+	
+	# Tell the user which commands to unalias
+	my ($found_alias, $old_aliases) = $self->read_old_aliases;
+	my (@to_remove, @to_add);
+	if ($found_alias) {
+		my @old = $old_aliases->@*;
+		my @new = $self->config->{alias}->@*;
+		
+		sub in_new { my $v = shift; grep {$_ eq $v } @new }
+		@to_remove = grep { ! in_new($_) } @old;
+		
+		sub in_old { my $v = shift; grep {$_ eq $v } @old }
+		@to_add = grep { ! in_old($_) } @new;
+	}
+	
+	if (@to_remove) {
+		_say "The following aliases have been removed: "
+			. join(' ', map { qq('$_') } @to_remove)
+			.". They are still loaded so unalias them by hand.";
+	}
+	
+	$self->write_aliases;
+	
+	if (@to_add) {
+		_say "New aliases written to '".$self->aliases_file.".";
+	} else {
+		_say "Aliases written to '".$self->aliases_file.".";
+	}
+}
+
 
 =head1 COMMANDS
 
@@ -78,16 +135,34 @@ Prints out shell code to load aliases
 sub init_subcommand {
 	my $self = shift;
 	
-	$self->load_config;
-	if ($self->config_loaded) {
-		$self->write_aliases;
+	$self->load_config_once;
+	unless ($self->config_loaded) {
+		say qq(echo "Failed to load switchable configuration file");
+		exit $EXIT{BAD_IO};
 	}
 	
+	# Load bash-preexec
+	if (defined $self->preexec_path) {
+		say "source ".$self->preexec_path;
+		
+		# Define hooks
+		print <<'END';
+sw_preexec() { eval "$( switchable preexec "$1" )"; }
+sw_precmd() { eval "$( switchable precmd "$1" )"; }
+
+preexec_functions+=(sw_preexec)
+precmd_functions+=(sw_precmd)
+END
+	} else {
+		say qq(echo "Could not find bash-preexec");
+	}
+	
+	say qq(export SWITCHABLE_EXISTS=1);
+	
+	$self->write_aliases;
 	my $alias = $self->aliases_file;
 	if ($alias->exists) {
-		print <<END;
-source "$alias"
-END
+		say qq(source "$alias");
 	}
 }
 
@@ -175,30 +250,13 @@ sub preexec_subcommand {
 	# Process `switchable reload-aliases`
 	if ($command =~ m{
 		^ \s* (?: \Q$0\E | switchable ) # The command name or switchable
-		\s+ reload-aliases  # followed by the `reload-aliases`subcommand
+		\s+ reload-aliases  # followed by the `reload-aliases` subcommand
 	}x) {
-		$self->load_config;
-		if ($self->config_loaded) {
-			# Remove old aliases
-			if ($self->aliases_file->exists) {
-				# Create an unalias file based on the aliases file
-				$self->aliases_file->move($self->unalias_file);
-				
-				# alias -> unalias
-				my $string = $self->unalias_file->slurp;
-				$string =~ s/^alias/unalias/mg;
-				$self->unalias_file->spew($string);
-				
-				say "source ".$self->unalias_file;
-			}
-			
-			# Write the new aliases file
-			$self->write_aliases;
-			
-			# Load the new ones
-			say "source ".$self->aliases_file;
-			say qq(echo "Loaded new aliases and wrote them to ).$self->aliases_file.q(");
-		}
+		$self->_reload_aliases_from('preexec');
+		
+		my $alias = $self->aliases_file;
+		say qq(source "$alias") if $alias->exists;
+		say qq(echo "Loaded new aliases in this shell");
 	}
 
 	if ($self->match_filter($command)) {# TODO detect pipes
@@ -292,16 +350,7 @@ sub reload_aliases_subcommand {
 		return;
 	}
 	
-	$self->load_config;
-	unless ($self->config_loaded) {
-		say "No configuration found, aborting.";
-		exit $EXIT{BAD_IO};
-	}
-	
-	$self->write_aliases;
-
-	say "New aliases written to ".$self->aliases_file;
-	say "New shells will load that file."
+	$self->_reload_aliases_from('command');
 }
 
 =head2 $app->xrandr_subcommand

@@ -16,7 +16,8 @@ Format is as follows:
 
 =cut
 
-use lib "lib";
+use FindBin;
+use lib "$FindBin::Bin/lib";
 
 require App::Switchable;
 

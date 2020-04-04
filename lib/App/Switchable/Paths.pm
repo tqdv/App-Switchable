@@ -87,10 +87,9 @@ Returns a L<Path::Tiny> object.
 Finds an existing aliases file, or the path where it should be created.
 Returns a L<Path::Tiny> object.
 
-=head2 _find_unalias_file
+=head2 $app->_find_preexec
 
-Finds an existing unalias file, or the path where it should be created.
-Returns a L<Path::Tiny> object.
+Finds the bash_preexec file by testing a few common locations, or by getting it from the config.
 
 =cut
 
@@ -124,18 +123,15 @@ sub _find_aliases_file {
 	return $path;
 }
 
-sub _find_unalias_file {
-	my $filename = 'unalias.bash';
-
-	my $loc = _prefered_location;
-	if ($loc eq 'xdg') {
-		$path = path($xdg->data_home)->child($filename);
-	} elsif ($loc eq 'dot') {
-		$path = path(home)->child('.switchable', $filename);
-	}
-
-	defined $path or croak "Could not decide where to put the alias file";
-	return $path;
+sub _find_preexec {
+	my $self = shift;
+	my $path;
+	
+	$path = path(home)->child('.bash-preexec.sh');
+	return $path if $path->exists;
+	
+	$path = $self->config->{preexec};
+	return path($path) if defined $path;
 }
 
 
@@ -149,9 +145,9 @@ Returns the configuration file path.
 
 Returns the aliases file path. Does not create it.
 
-=head2 $app->unalias_file
+=head2 $app->preexec_path
 
-Returns the unalias file path. Does not create it.
+Returns the bash_preexec file path if found.
 
 =cut
 
@@ -173,13 +169,13 @@ sub aliases_file {
 	return $aliases_file;
 }
 
-sub unalias_file {
+sub preexec_path {
 	my $self = shift;
 	
-	state $unalias_file;
-	$unalias_file //= _find_unalias_file;
+	state $preexec_path;
+	$preexec_path //= $self->_find_preexec;
 	
-	return $unalias_file;
+	return $preexec_path;
 }
 
 1;
