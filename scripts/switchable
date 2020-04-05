@@ -1,0 +1,22 @@
+#!/usr/bin/perl
+
+=head1 CONFIGURATION
+
+The configuration file is a JSON file stored at
+either C<~/.config/switchable/config.json>
+or C<~/.switchable/config.json>.
+
+Format is as follows:
+
+ {
+     driver: 1,             // default DRI_PRIME value
+     match: [ "steam" ],    // used by the preexec hook
+     alias: [ "glxgears" ], // aliases
+ }
+
+=cut
+
+require App::Switchable;
+
+my $app = App::Switchable->new;
+$app->run;

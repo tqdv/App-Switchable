@@ -5,15 +5,9 @@ use JSON::PP;
 use Carp;
 require App::Switchable::Paths;
 
-our $VERSION = v0.1.0;
-
 =head1 NAME
 
 App::Switchable::Config
-
-=head1 VERSION
-
-v0.1.0
 
 =head1 SYNOPSIS
 

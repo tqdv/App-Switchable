@@ -19,7 +19,7 @@ our @ISA = qw<
 	App::Switchable::File
 >;
 
-our $VERSION = v0.0.4;
+our $VERSION = v0.1.0;
 
 =encoding utf8
 
